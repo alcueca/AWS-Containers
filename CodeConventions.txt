@@ -1,0 +1,11 @@
+Resources are named like their type when there is only one, an id will be suffixed with a dash when there are more than one.
+
+Outputs are named like their type, suffixed by "-out"
+
+Parameters are named like their type, suffixed by "-param"
+
+All resources have a link to their documentation page just before the resource delaration.
+
+When an additional source of documentation was required it will be referenced between the documentation link and the resource declaration, with a short explanation of what was it used for.
+
+Short forms will be used for YAML commands (!Ref, !ImportValue, !FindInMap)
