@@ -1,8 +1,10 @@
+YAML files are named as the overall solution they create
+
 Resources are named like their type when there is only one, an id will be suffixed with a dash when there are more than one.
 
-Outputs are named like their type, suffixed by "-out"
+Outputs are named like their type, suffixed by "Out"
 
-Parameters are named like their type, suffixed by "-param"
+Parameters are named like the property they are assigned to, suffixed by "Param"
 
 All resources have a link to their documentation page just before the resource delaration.
 

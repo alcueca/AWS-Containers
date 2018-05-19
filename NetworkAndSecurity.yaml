@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'This template creates some basic infrastructure with which to build a EC2 stack. It creates a VPC with two public subnets in different availability zones, in the eu-west-1 (Ireland) region. It also creates a security group that allows SSH traffic'
+
+Outputs:
+
+  # --- Networks ---
+  EC2VPCOut:
+    Description: The VPC for the resources built on top of this stack.
+    Value: !Ref EC2VPC
+    Export:
+      Name: EC2VPCOut
+
+  EC2Subnet1Out:
+    Description: The subnet in the eu-west-1a region and zone for the resources built on top of this stack.
+    Value: !Ref EC2Subnet1
+    Export:
+      Name: EC2Subnet1Out
+
+  EC2Subnet2Out:
+    Description: The subnet in the eu-west-1a region and zone for the resources built on top of this stack.
+    Value: !Ref EC2Subnet2
+    Export:
+      Name: EC2Subnet2Out
+
+  # --- Security Groups ---
+
+  EC2SecurityGroupSSHOut:
+    Description: The Security Group to use with EC2 servers built on top of this stack.
+    Value: !Ref EC2SecurityGroupSSH
+    Export:
+      Name: EC2SecurityGroupSSHOut
+
+  # EC2 Instances require the Security Group Id instead of the Security Group Resource
+  SecurityGroupSSHGroupIdOut:
+    Description: The Security Group Id to use with EC2 servers built on top of this stack.
+    Value:
+      Fn::GetAtt:
+        - EC2SecurityGroupSSH
+        - GroupId
+    Export:
+      Name: EC2SecurityGroupSSHGroupIdOut
+
+Resources:
+
+  # --- Networks ---
+  EC2VPC:
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc.html
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 192.168.0.0/16
+
+  EC2Subnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref EC2VPC
+      CidrBlock: 192.168.0.0/24
+      AvailabilityZone: "eu-west-1a"
+      MapPublicIpOnLaunch: true
+
+  EC2Subnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref EC2VPC
+      CidrBlock: 192.168.1.0/24
+      AvailabilityZone: "eu-west-1b"
+      MapPublicIpOnLaunch: true
+
+  EC2InternetGateway:
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-internetgateway.html
+    Type: "AWS::EC2::InternetGateway"
+    Properties: {}
+
+  EC2VPCGatewayAttachment:
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-vpc-gateway-attachment.html
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties: 
+      InternetGatewayId: !Ref EC2InternetGateway
+      VpcId: !Ref EC2VPC
+
+  EC2RouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties: 
+      VpcId: !Ref EC2VPC
+
+  EC2InternetRoute:
+    Type: "AWS::EC2::Route"
+    Properties: 
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref EC2InternetGateway
+      RouteTableId: !Ref EC2RouteTable
+
+  EC2SubnetRouteTableAssociation1:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      RouteTableId: !Ref EC2RouteTable
+      SubnetId: !Ref EC2Subnet1
+
+  EC2SubnetRouteTableAssociation2:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties: 
+      RouteTableId: !Ref EC2RouteTable
+      SubnetId: !Ref EC2Subnet2
+
+  # --- Security Groups ---
+  EC2SecurityGroupSSH:
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref EC2VPC
+      GroupDescription: Open SSH traffic on port 22 from all IPs. Harden for real life, please.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+
