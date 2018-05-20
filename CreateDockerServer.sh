@@ -1,6 +1,6 @@
 #!/bin/bash
 
-aws cloudformation create-stack --profile alberto --stack-name Docker-EC2 \
+aws cloudformation create-stack --profile alberto --stack-name DockerServerDocker \
         --template-body file://DockerServer.yaml \
         --region eu-west-1 \
         --parameters \

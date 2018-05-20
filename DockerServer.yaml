@@ -25,6 +25,7 @@ Resources:
 
   EC2Instance:
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
+  # A docker server needs to allow inbound HTTP traffic on port 80 to communicate with the ECR container registry
     Type: "AWS::EC2::Instance"
     Metadata:
       Comment: Install a Docker Server
@@ -67,6 +68,7 @@ Resources:
       # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-importvalue.html
       SecurityGroupIds: 
         - !ImportValue EC2SecurityGroupSSHGroupIdOut
+        - !ImportValue EC2SecurityGroupHTTPGroupIdOut
       SubnetId: !ImportValue EC2Subnet1Out
       UserData:
         "Fn::Base64":

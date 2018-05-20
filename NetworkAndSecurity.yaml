@@ -5,19 +5,19 @@ Outputs:
 
   # --- Networks ---
   EC2VPCOut:
-    Description: The VPC for the resources built on top of this stack.
+    Description: A VPC for the resources built on top of this stack.
     Value: !Ref EC2VPC
     Export:
       Name: EC2VPCOut
 
   EC2Subnet1Out:
-    Description: The subnet in the eu-west-1a region and zone for the resources built on top of this stack.
+    Description: A subnet in the eu-west-1a region and zone.
     Value: !Ref EC2Subnet1
     Export:
       Name: EC2Subnet1Out
 
   EC2Subnet2Out:
-    Description: The subnet in the eu-west-1a region and zone for the resources built on top of this stack.
+    Description: A subnet in the eu-west-1b region and zone.
     Value: !Ref EC2Subnet2
     Export:
       Name: EC2Subnet2Out
@@ -25,20 +25,36 @@ Outputs:
   # --- Security Groups ---
 
   EC2SecurityGroupSSHOut:
-    Description: The Security Group to use with EC2 servers built on top of this stack.
+    Description: This Security Group allows SSH traffic on port 22.
     Value: !Ref EC2SecurityGroupSSH
     Export:
       Name: EC2SecurityGroupSSHOut
 
   # EC2 Instances require the Security Group Id instead of the Security Group Resource
   SecurityGroupSSHGroupIdOut:
-    Description: The Security Group Id to use with EC2 servers built on top of this stack.
+    Description: This Security Group allows SSH traffic on port 22.
     Value:
       Fn::GetAtt:
         - EC2SecurityGroupSSH
         - GroupId
     Export:
       Name: EC2SecurityGroupSSHGroupIdOut
+
+  EC2SecurityGroupHTTPOut:
+    Description: This Security Group allows HTTP traffic on port 80.
+    Value: !Ref EC2SecurityGroupHTTP
+    Export:
+      Name: EC2SecurityGroupHTTPOut
+
+  # EC2 Instances require the Security Group Id instead of the Security Group Resource
+  SecurityGroupHTTPGroupIdOut:
+    Description: This Security Group allows HTTP traffic on port 80.
+    Value:
+      Fn::GetAtt:
+        - EC2SecurityGroupHTTP
+        - GroupId
+    Export:
+      Name: EC2SecurityGroupHTTPGroupIdOut
 
 Resources:
 
@@ -112,5 +128,17 @@ Resources:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
+          CidrIp: 0.0.0.0/0
+
+  EC2SecurityGroupHTTP:
+    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-security-group.html
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref EC2VPC
+      GroupDescription: Open HTTP traffic on port 80 from all IPs.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
           CidrIp: 0.0.0.0/0
 

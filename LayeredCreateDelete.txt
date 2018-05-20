@@ -1,0 +1,17 @@
+# Commands to layer all stacks
+
+./CreateNetworkAndSecurity.sh &&
+./waitForStatus.py -s NetworkAndSecurityDocker -r CREATE_COMPLETE &&
+./CreateDockerServer.sh  &&
+./waitForStatus.py -s DockerServerDocker -r CREATE_COMPLETE &&
+./CreateECR.sh &&
+./waitForStatus.py -s ECRDocker -r CREATE_COMPLETE
+
+# Commands to delete all stacks
+
+aws cloudformation delete-stack --stack-name ECRDocker &&
+./waitForDeletion.py -s ECRDocker &&
+aws cloudformation delete-stack --stack-name DockerServerDocker &&
+./waitForDeletion.py -s DockerServerDocker &&
+aws cloudformation delete-stack --stack-name NetworkAndSecurityDocker &&
+./waitForDeletion.py -s NetworkAndSecurityDocker
