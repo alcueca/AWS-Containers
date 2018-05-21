@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: 'This template builds a basic linux EC2 instance with docker installed on it. There are docker-ready AMIs that you could use instead.'
+Description: 'This template builds a basic linux EC2 instance with docker installed on it (there are docker-ready AMIs that you could use instead, but this is a learning exercise). The newly created Docker Server proceeds to download the ecs-demo-php-simple-app dockerfile from the awslabs git repository, builds an image off it and pushes it to the ECR repository (please make sure of creating the NetworkAndSecurity and ECR stacks first)'
 
 Parameters:
   KeyNameParam:

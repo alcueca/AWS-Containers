@@ -31,7 +31,7 @@ Outputs:
       Name: EC2SecurityGroupSSHOut
 
   # EC2 Instances require the Security Group Id instead of the Security Group Resource
-  SecurityGroupSSHGroupIdOut:
+  EC2SecurityGroupSSHGroupIdOut:
     Description: This Security Group allows SSH traffic on port 22.
     Value:
       Fn::GetAtt:
@@ -47,7 +47,7 @@ Outputs:
       Name: EC2SecurityGroupHTTPOut
 
   # EC2 Instances require the Security Group Id instead of the Security Group Resource
-  SecurityGroupHTTPGroupIdOut:
+  EC2SecurityGroupHTTPGroupIdOut:
     Description: This Security Group allows HTTP traffic on port 80.
     Value:
       Fn::GetAtt:
@@ -55,6 +55,25 @@ Outputs:
         - GroupId
     Export:
       Name: EC2SecurityGroupHTTPGroupIdOut
+
+  # --- IAM ---
+  IAMRoleECRFullAccessOut:
+    Description: This role gives EC2 instances full access to ECR
+    Value: !Ref IAMRoleECRFullAccess
+    Export:
+      Name: IAMRoleECRFullAccessOut
+
+  IAMPolicyECRFullAccessOut:
+    Description: This policy allows all actions on all ECR resources
+    Value: !Ref IAMPolicyECRFullAccess
+    Export:
+      Name: IAMPolicyECRFullAccessOut
+
+  IAMInstanceProfileECRFullAccessOut:
+    Description: This profile allows all actions on all ECR resources
+    Value: !Ref IAMInstanceProfileECRFullAccess
+    Export:
+      Name: IAMInstanceProfileECRFullAccessOut
 
 Resources:
 
@@ -142,3 +161,40 @@ Resources:
           ToPort: '80'
           CidrIp: 0.0.0.0/0
 
+  # --- IAM ---
+  # https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_IAM_policies.html
+  # This role gives EC2 instances full access to ECR
+  IAMRoleECRFullAccess:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  # This policy allows all actions on all ECR resources
+  IAMPolicyECRFullAccess:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ECRFullAccess
+      PolicyDocument:
+        Statement:
+        - Action:
+          - "ecr:*"
+          Effect: Allow
+          Resource: "*"
+      Roles:
+      - !Ref IAMRoleECRFullAccess
+
+  # This profile allows all actions on all ECR resources
+  IAMInstanceProfileECRFullAccess:
+      Type: "AWS::IAM::InstanceProfile"
+      Properties:
+        Path: "/"
+        Roles:
+          - !Ref IAMRoleECRFullAccess
