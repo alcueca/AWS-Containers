@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'This template builds upon NetworkAndSecurity.yaml to create an ECS Cluster, a Launch Configuration for creating Container Instances and an Autoscaling Group to control the number of Container Instances launched in the ECS Cluster.'
+# Explanation of autoscaling both instances and services: https://aws.amazon.com/blogs/compute/automatic-scaling-with-amazon-ecs/
+# Cheat: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/quickref-ecs.html
+
+Parameters:
+
+  KeyNameParam:
+    Description: EC2 Instance SSH Key
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+
+Mappings:
+  AMIs:
+    eu-west-1:
+      Name: ami-9cbe9be5
+
+Outputs:
+
+  AutoScalingGroupOut:
+    Description: The AutoScalingGroup used to control Container Instances
+    Value: !Ref AutoScalingGroup
+    Export:
+      Name: AutoScalingGroupOut
+
+Resources:
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-cluster.html
+  ECSCluster:
+    Type: "AWS::ECS::Cluster"
+    Properties:
+      ClusterName: ECSCluster
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-group.html
+  LaunchConfiguration:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    Properties:
+      IamInstanceProfile: !ImportValue IAMInstanceProfileECRFullAccessOut
+      ImageId: !FindInMap [ AMIs, !Ref 'AWS::Region', Name]
+      InstanceType: t2.micro # In this case I think it is ok to hardcode this
+      KeyName: !Ref KeyNameParam
+      SecurityGroups: 
+        - !ImportValue EC2SecurityGroupSSHOut
+        - !ImportValue EC2SecurityGroupHTTPOut
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
+          yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AutoScalingGroup --region ${AWS::Region}
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-launchconfig.html
+  AutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: ECSAutoScalingGroup
+      HealthCheckGracePeriod: 10
+      HealthCheckType: ELB
+      LaunchConfigurationName: !Ref LaunchConfiguration
+      MaxSize: 4
+      MinSize: 1
+      TargetGroupARNs:
+        - !Ref TargetGroup
+      VPCZoneIdentifier:
+        - !ImportValue EC2Subnet1Out
+        - !ImportValue EC2Subnet2Out
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-loadbalancer.html
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - !ImportValue EC2Subnet1Out
+        - !ImportValue EC2Subnet2Out
+      SecurityGroups:
+        - !ImportValue EC2SecurityGroupHTTPGroupIdOut
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-elasticloadbalancingv2-targetgroup.html   
+  TargetGroup: 
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      HealthCheckPath: /healthy.html
+      HealthCheckPort: 80
+      HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 6
+      HealthyThresholdCount: 2
+      Name: TargetGroup
+      Port: 80
+      Protocol: HTTP
+      VpcId: !ImportValue EC2VPCOut
+
+  Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties: 
+      DefaultActions:
+        - TargetGroupArn: !Ref TargetGroup
+          Type: forward
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-route53-recordset.html
+  RecordSet:
+    Type: 'AWS::Route53::RecordSet'    
+    Properties:
+      Name: albertocuesta.click.
+      HostedZoneName: albertocuesta.click.
+      Type: A
+      AliasTarget: 
+        DNSName: !GetAtt LoadBalancer.DNSName
+        HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+

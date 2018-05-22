@@ -11,6 +11,9 @@ waitForStatus.py -s DockerServerDocker -r CREATE_COMPLETE
 
 # Commands to delete all stacks and docker images
 
+aws cloudformation delete-stack --stack-name ECSClusterDocker &&
+waitForDeletion.py -s ECSClusterDocker &&
+
 aws cloudformation delete-stack --stack-name DockerServerDocker &&
 waitForDeletion.py -s DockerServerDocker &&
 aws ecr delete-repository --repository-name ecs-course --force &&
