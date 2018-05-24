@@ -96,13 +96,13 @@ Resources:
             eval $(aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
             # Build docker image and tag it with the repository name           
             cd /home/ec2-user/ecs-demo-php-simple-app
-            docker build -t ecs-course .
+            docker build -t local-get-started:ecs-demo .
             # Run docker image and bind port 80 in the docker server to port 80 in the image
-            docker run -p 80:80 ecs-course &
+            docker run -p 80:80 local-get-started:ecs-demo &
             # Tag the image for the repository including the user login obtained with get-login
-            docker tag ecs-course:latest 963697544248.dkr.ecr.eu-west-1.amazonaws.com/ecs-course:latest
+            docker tag local-get-started:ecs-demo 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:ecs-demo
             # Push the image to the repository
-            docker push 963697544248.dkr.ecr.eu-west-1.amazonaws.com/ecs-course:latest
+            docker push 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:ecs-demo
 
 
 

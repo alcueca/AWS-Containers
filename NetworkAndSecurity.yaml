@@ -193,8 +193,8 @@ Resources:
 
   # This profile allows all actions on all ECR resources
   IAMInstanceProfileECRFullAccess:
-      Type: "AWS::IAM::InstanceProfile"
-      Properties:
-        Path: "/"
-        Roles:
-          - !Ref IAMRoleECRFullAccess
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref IAMRoleECRFullAccess

@@ -1,0 +1,27 @@
+# Build an image in a local repository (created by this command as local-get-started)
+# An image is referenced by a repository name and a tag. It seems that one repository should have just one type of container images (e.g. python build) and the tag is for the version.
+# In this example I'm using local-get-started as the name of the local repository, docker-get-started as the shared repository created by ECR, and friendlyhello as the version tag
+
+docker build -t local-get-started:friendlyhello .
+
+# Instantiate a container from the image and run it, binding the 4000 port on the host machine to port 80 on the container. Remember ot open the 4000 port in the host machine.
+
+docker run -p 4000:80 local-get-started:friendlyhello
+
+# Login in to the ECR repository can be a bit tricky in AWS, it involves asking aws cre for the login command and correcting the output to remove the https:// bit
+
+eval $(aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
+
+# Tagging the image for sharing in a repository involves knowing the name of the local repository (created above), the remote repository (stated when creating the repository via CloudFormation or the AWS console) and the user to login to the remote repository (returned by the aws ecr get-login command)
+
+docker tag local-get-started:friendlyhello 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:friendlyhello
+
+# Pushing requires the user to log on to ECR, the name of the remote ECR repository, and the tag for the remote image specified above. Also make sure your EC2 instance is associated to a profile linking to a policy that gives appropriate permissions to ECR
+
+docker push 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:friendlyhello
+
+# Now that the image is in a shared repository a different docker instance can login to the ECR repository and run a second container instantiated from the image
+
+eval $(aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
+
+docker run -p 4000:80 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:friendlyhello
