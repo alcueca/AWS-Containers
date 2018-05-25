@@ -3,7 +3,7 @@
 PATH=$PATH:/home/alberto/AWS/Git/AWS-Tooling/
 
 aws ecr delete-repository \
-    --repository-name ecs-course \
+    --repository-name ecr-repository \
     --force
 
 aws cloudformation delete-stack \

@@ -19,7 +19,7 @@ Parameters:
 Mappings:
   AMIs:
     eu-west-1:
-      Name: ami-9cbe9be5
+      Name: ami-ca0135b3
 
 Resources:
 
@@ -76,6 +76,11 @@ Resources:
         - !ImportValue EC2SecurityGroupSSHGroupIdOut
         - !ImportValue EC2SecurityGroupHTTPGroupIdOut
       SubnetId: !ImportValue EC2Subnet1Out
+      Tags: 
+        - Key: Name
+          Value: Push Image Instance
+        - Key: Environment
+          Value: Docker Get Started
       UserData:
         "Fn::Base64":
           !Sub |
@@ -98,7 +103,7 @@ Resources:
             cd /home/ec2-user/ecs-demo-php-simple-app
             docker build -t local-get-started:ecs-demo .
             # Run docker image and bind port 80 in the docker server to port 80 in the image
-            docker run -p 80:80 local-get-started:ecs-demo &
+            # docker run -p 80:80 local-get-started:ecs-demo &
             # Tag the image for the repository including the user login obtained with get-login
             docker tag local-get-started:ecs-demo 963697544248.dkr.ecr.eu-west-1.amazonaws.com/docker-get-started:ecs-demo
             # Push the image to the repository

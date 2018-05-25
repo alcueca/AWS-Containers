@@ -15,3 +15,5 @@ All resources have a link to their documentation page just before the resource d
 When an additional source of documentation was required it will be referenced between the documentation link and the resource declaration, with a short explanation of what was it used for.
 
 Short forms will be used for YAML commands (!Ref, !ImportValue, !FindInMap)
+
+Resources that have independent names visible to other AWS services are in lowercase, words separated by hyphens, named as the type they are.

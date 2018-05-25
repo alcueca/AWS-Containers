@@ -57,23 +57,17 @@ Outputs:
       Name: EC2SecurityGroupHTTPGroupIdOut
 
   # --- IAM ---
-  IAMRoleECRFullAccessOut:
-    Description: This role gives EC2 instances full access to ECR
-    Value: !Ref IAMRoleECRFullAccess
-    Export:
-      Name: IAMRoleECRFullAccessOut
-
-  IAMPolicyECRFullAccessOut:
-    Description: This policy allows all actions on all ECR resources
-    Value: !Ref IAMPolicyECRFullAccess
-    Export:
-      Name: IAMPolicyECRFullAccessOut
-
   IAMInstanceProfileECRFullAccessOut:
     Description: This profile allows all actions on all ECR resources
     Value: !Ref IAMInstanceProfileECRFullAccess
     Export:
       Name: IAMInstanceProfileECRFullAccessOut
+
+  IAMInstanceProfileECSFullAccessOut:
+    Description: This profile allows all actions on all ECS resources
+    Value: !Ref IAMInstanceProfileECSFullAccess
+    Export:
+      Name: IAMInstanceProfileECSFullAccessOut
 
 Resources:
 
@@ -163,8 +157,23 @@ Resources:
 
   # --- IAM ---
   # https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_IAM_policies.html
+  # Roles and profiles giving full access to ECS also have full access to ECR in this config
   # This role gives EC2 instances full access to ECR
   IAMRoleECRFullAccess:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  # This role gives EC2 instances full access to ECS and ECR
+  IAMRoleECSFullAccess:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -190,6 +199,21 @@ Resources:
           Resource: "*"
       Roles:
       - !Ref IAMRoleECRFullAccess
+      - !Ref IAMRoleECSFullAccess
+
+  # This policy allows all actions on all ECS resources
+  IAMPolicyECSFullAccess:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ECSFullAccess
+      PolicyDocument:
+        Statement:
+        - Action:
+          - "ecs:*"
+          Effect: Allow
+          Resource: "*"
+      Roles:
+      - !Ref IAMRoleECSFullAccess
 
   # This profile allows all actions on all ECR resources
   IAMInstanceProfileECRFullAccess:
@@ -198,3 +222,11 @@ Resources:
       Path: "/"
       Roles:
         - !Ref IAMRoleECRFullAccess
+
+  # This profile allows all actions on all ECS and ECR resources
+  IAMInstanceProfileECSFullAccess:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref IAMRoleECSFullAccess

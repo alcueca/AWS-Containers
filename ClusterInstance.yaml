@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: 'This template builds upon NetworkAndSecurity.yaml to create an ECS Cluster and a EC2 Container Instance. I plant to use this stack to learn how to register container instances to an ECS Cluster'
+Description: 'This template builds upon NetworkAndSecurity.yaml to creates an EC2 Container Instance which registers into an ECS Cluster -- Not working yet'
 
 Parameters:
   KeyNameParam:
@@ -19,7 +19,7 @@ Parameters:
 Mappings:
   AMIs:
     eu-west-1:
-      Name: ami-9cbe9be5
+      Name: ami-ca0135b3
 
 Resources:
 
@@ -27,6 +27,7 @@ Resources:
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-ec2-instance.html
   # A docker server needs to allow inbound HTTP traffic on port 80 to communicate with the ECR container registry
   # Attaching IAM roles to EC2 -> https://hackernoon.com/attach-an-iam-role-to-an-ec2-instance-with-cloudformation-33c517a8d4c3
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html
     Type: "AWS::EC2::Instance"
     Metadata:
       Comment: Install a Docker Container Instance
@@ -63,7 +64,7 @@ Resources:
       ResourceSignal:
         Timeout: PT5M
     Properties: 
-      IamInstanceProfile: !ImportValue IAMInstanceProfileECRFullAccessOut
+      IamInstanceProfile: !ImportValue IAMInstanceProfileECSFullAccessOut
       ImageId: !FindInMap [ AMIs, !Ref 'AWS::Region', Name]
       InstanceType: !Ref InstanceTypeParam
       KeyName: !Ref KeyNameParam
@@ -71,6 +72,11 @@ Resources:
         - !ImportValue EC2SecurityGroupSSHGroupIdOut
         - !ImportValue EC2SecurityGroupHTTPGroupIdOut
       SubnetId: !ImportValue EC2Subnet1Out
+      Tags: 
+        - Key: Name
+          Value: Cluster Instance
+        - Key: Environment
+          Value: Docker Get Started
       UserData:
         "Fn::Base64":
           !Sub |
@@ -84,12 +90,7 @@ Resources:
             /opt/aws/bin/cfn-init -s ${AWS::StackId} -r EC2Instance --region=${AWS::Region} -v
             # Start up the cfn-hup daemon to listen for changes to the EC2 instance metadata
             /opt/aws/bin/cfn-hup
+            # Login to the ECR repository
+            eval $(aws ecr get-login --no-include-email --region eu-west-1 | sed 's|https://||')
             # All done so signal success
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource EC2Instance --region=${AWS::Region}
-
-  # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecs-cluster.html
-  ECSCluster:
-    Type: "AWS::ECS::Cluster"
-    Properties:
-      ClusterName: ECSCluster
-
