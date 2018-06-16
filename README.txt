@@ -8,9 +8,9 @@ ECSDemoBuilder.yaml: Creates an EC2 machine that acts as a container instance, i
 
 ECSCluster.yaml: Creates an ECS Cluster called ecs-cluster
 
-EC2ContainerInstance.yaml: It creates an EC2 Container Instance. ToDo: Register it to the ECS Cluster. Depends on NetworkAndSecurity.yaml and ECSCluster.yaml
+EC2ContainerInstance.yaml: It creates an EC2 Container Instance that logs on to the ECR Repository and launches into the ECS Cluster. Depends on NetworkAndSecurity.yaml, ECR.yaml and ECSCluster.yaml
 
-ECSClusterAutoScaling.yaml: Todo: Create an autorscaling ECS Cluster
+ECSClusterAutoScaling.yaml: Todo: Create an autoscaling ECS Cluster
 
 AutoScalingAlarms.yaml: ToDo: Create the triggers for scaling the autoscaling ECS Cluster
 
