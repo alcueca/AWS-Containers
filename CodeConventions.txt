@@ -6,7 +6,7 @@ The docker repository is named repository-docker
 
 Resources are named like their type when there is only one, an id will be suffixed with a dash when there are more than one.
 
-Outputs are named like their type, suffixed by "Out"
+Outputs are named like their type, prefixed by "Containers" and suffixed by "Out"
 
 Parameters are named like the property they are assigned to, suffixed by "Param"
 

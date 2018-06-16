@@ -68,14 +68,14 @@ Resources:
       ResourceSignal:
         Timeout: PT5M
     Properties: 
-      IamInstanceProfile: !ImportValue IAMInstanceProfileECRFullAccessOut
+      IamInstanceProfile: !ImportValue ContainersIAMInstanceProfileECRFullAccessOut
       ImageId: !FindInMap [ AMIs, !Ref 'AWS::Region', Name]
       InstanceType: !Ref InstanceTypeParam
       KeyName: !Ref KeyNameParam
       SecurityGroupIds: 
-        - !ImportValue EC2SecurityGroupSSHGroupIdOut
-        - !ImportValue EC2SecurityGroupHTTPGroupIdOut
-      SubnetId: !ImportValue EC2Subnet1Out
+        - !ImportValue ContainersEC2SecurityGroupSSHGroupIdOut
+        - !ImportValue ContainersEC2SecurityGroupHTTPGroupIdOut
+      SubnetId: !ImportValue ContainersEC2Subnet1Out
       UserData:
         "Fn::Base64":
           !Sub |

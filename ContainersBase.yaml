@@ -4,76 +4,57 @@ Description: 'This template creates some basic infrastructure with which to buil
 Outputs:
 
   # --- Networks ---
-  EC2VPCOut:
-    Description: A VPC for the resources built on top of this stack.
-    Value: !Ref EC2VPC
-    Export:
-      Name: EC2VPCOut
-
-  EC2Subnet1Out:
+  ContainersEC2Subnet1Out:
     Description: A subnet in the eu-west-1a region and zone.
     Value: !Ref EC2Subnet1
     Export:
-      Name: EC2Subnet1Out
+      Name: ContainersEC2Subnet1Out
 
-  EC2Subnet2Out:
+  ContainersEC2Subnet2Out:
     Description: A subnet in the eu-west-1b region and zone.
     Value: !Ref EC2Subnet2
     Export:
-      Name: EC2Subnet2Out
+      Name: ContainersEC2Subnet2Out
 
   # --- Security Groups ---
-
-  EC2SecurityGroupSSHOut:
-    Description: This Security Group allows SSH traffic on port 22.
-    Value: !Ref EC2SecurityGroupSSH
-    Export:
-      Name: EC2SecurityGroupSSHOut
-
   # EC2 Instances require the Security Group Id instead of the Security Group Resource
-  EC2SecurityGroupSSHGroupIdOut:
+  ContainersEC2SecurityGroupSSHGroupIdOut:
     Description: This Security Group allows SSH traffic on port 22.
     Value:
       Fn::GetAtt:
         - EC2SecurityGroupSSH
         - GroupId
     Export:
-      Name: EC2SecurityGroupSSHGroupIdOut
-
-  EC2SecurityGroupHTTPOut:
-    Description: This Security Group allows HTTP traffic on port 80.
-    Value: !Ref EC2SecurityGroupHTTP
-    Export:
-      Name: EC2SecurityGroupHTTPOut
+      Name: ContainersEC2SecurityGroupSSHGroupIdOut
 
   # EC2 Instances require the Security Group Id instead of the Security Group Resource
-  EC2SecurityGroupHTTPGroupIdOut:
+  ContainersEC2SecurityGroupHTTPGroupIdOut:
     Description: This Security Group allows HTTP traffic on port 80.
     Value:
       Fn::GetAtt:
         - EC2SecurityGroupHTTP
         - GroupId
     Export:
-      Name: EC2SecurityGroupHTTPGroupIdOut
+      Name: ContainersEC2SecurityGroupHTTPGroupIdOut
 
   # --- IAM ---
-  IAMInstanceProfileECRFullAccessOut:
+  ContainersIAMInstanceProfileECRFullAccessOut:
     Description: This profile allows all actions on all ECR resources
     Value: !Ref IAMInstanceProfileECRFullAccess
     Export:
-      Name: IAMInstanceProfileECRFullAccessOut
+      Name: ContainersIAMInstanceProfileECRFullAccessOut
 
-  IAMInstanceProfileECSFullAccessOut:
+  ContainersIAMInstanceProfileECSFullAccessOut:
     Description: This profile allows all actions on all ECS resources
     Value: !Ref IAMInstanceProfileECSFullAccess
     Export:
-      Name: IAMInstanceProfileECSFullAccessOut
+      Name: ContainersIAMInstanceProfileECSFullAccessOut
 
-  IAMInstanceProfileEC2ContainerInstanceOut:
+  ContainersIAMInstanceProfileEC2ContainerInstanceOut:
     Description: This profile allows EC2 instances to register themselves in an ECS Cluster
     Value: !Ref IAMInstanceProfileEC2ContainerInstance
     Export:
-      Name: IAMInstanceProfileEC2ContainerInstanceOut
+      Name: ContainersIAMInstanceProfileEC2ContainerInstanceOut
 
 Resources:
 

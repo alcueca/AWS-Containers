@@ -1,11 +1,18 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: 'This template builds an EC2 Container Service Repository (ECR)'
 
+Outputs:
+
+  ECRRepositoryOut:
+    Description: An ECR Repository for Docker images.
+    Value: !Ref ECRRepository
+    Export:
+      Name: ECRRepositoryOut
+
 Resources:
 
   ECRRepository:
   # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ecr-repository.html
-  # I am not sure whether it is better to name the repository or not, please read the documentation. There seems to be some rules on accepted names (ECRRepository was rejected)
     Type: "AWS::ECR::Repository"
     Properties: 
       RepositoryName: ecr-repository

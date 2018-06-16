@@ -28,6 +28,7 @@ Resources:
   # Attaching IAM roles to EC2 -> https://hackernoon.com/attach-an-iam-role-to-an-ec2-instance-with-cloudformation-33c517a8d4c3
   # Installing the ECS Container Agent -> https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-agent-install.html
   # Launching an EC2 instance into an ECS Cluster -> https://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html
+  # Importing resources into user-data -> https://www.reddit.com/r/aws/comments/62h5h3/importvalue_inside_userdata_or_cfninit/
     Type: "AWS::EC2::Instance"
     Metadata:
       Comment: Install a Docker Server
@@ -68,14 +69,14 @@ Resources:
       ResourceSignal:
         Timeout: PT5M
     Properties: 
-      IamInstanceProfile: !ImportValue IAMInstanceProfileEC2ContainerInstanceOut
+      IamInstanceProfile: !ImportValue ContainersIAMInstanceProfileEC2ContainerInstanceOut
       ImageId: !FindInMap [ AMIs, !Ref 'AWS::Region', Name]
       InstanceType: !Ref InstanceTypeParam
       KeyName: !Ref KeyNameParam
       SecurityGroupIds: 
-        - !ImportValue EC2SecurityGroupSSHGroupIdOut
-        - !ImportValue EC2SecurityGroupHTTPGroupIdOut
-      SubnetId: !ImportValue EC2Subnet1Out
+        - !ImportValue ContainersEC2SecurityGroupSSHGroupIdOut
+        - !ImportValue ContainersEC2SecurityGroupHTTPGroupIdOut
+      SubnetId: !ImportValue ContainersEC2Subnet1Out
       Tags:
         - Key: Name
           Value: EC2ContainerInstance
