@@ -69,6 +69,12 @@ Outputs:
     Export:
       Name: IAMInstanceProfileECSFullAccessOut
 
+  IAMInstanceProfileEC2ContainerInstanceOut:
+    Description: This profile allows EC2 instances to register themselves in an ECS Cluster
+    Value: !Ref IAMInstanceProfileEC2ContainerInstance
+    Export:
+      Name: IAMInstanceProfileEC2ContainerInstanceOut
+
 Resources:
 
   # --- Networks ---
@@ -157,23 +163,10 @@ Resources:
 
   # --- IAM ---
   # https://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_IAM_policies.html
-  # Roles and profiles giving full access to ECS also have full access to ECR in this config
+
+  # --- Full Access to ECR ---
   # This role gives EC2 instances full access to ECR
   IAMRoleECRFullAccess:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ec2.amazonaws.com
-          Action:
-          - sts:AssumeRole
-      Path: "/"
-
-  # This role gives EC2 instances full access to ECS and ECR
-  IAMRoleECSFullAccess:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -199,7 +192,29 @@ Resources:
           Resource: "*"
       Roles:
       - !Ref IAMRoleECRFullAccess
-      - !Ref IAMRoleECSFullAccess
+
+  # This profile allows all actions on all ECR resources
+  IAMInstanceProfileECRFullAccess:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref IAMRoleECRFullAccess
+
+  # --- Full Access to ECS ---
+  # This role gives EC2 instances full access to ECS
+  IAMRoleECSFullAccess:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
 
   # This policy allows all actions on all ECS resources
   IAMPolicyECSFullAccess:
@@ -215,14 +230,6 @@ Resources:
       Roles:
       - !Ref IAMRoleECSFullAccess
 
-  # This profile allows all actions on all ECR resources
-  IAMInstanceProfileECRFullAccess:
-    Type: "AWS::IAM::InstanceProfile"
-    Properties:
-      Path: "/"
-      Roles:
-        - !Ref IAMRoleECRFullAccess
-
   # This profile allows all actions on all ECS and ECR resources
   IAMInstanceProfileECSFullAccess:
     Type: "AWS::IAM::InstanceProfile"
@@ -230,3 +237,53 @@ Resources:
       Path: "/"
       Roles:
         - !Ref IAMRoleECSFullAccess
+
+  # --- EC2 Container Instance ---
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html
+  # This role allows EC2 instances to register themselves in an ECS Cluster
+  IAMRoleEC2ContainerInstance:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+
+  # This policy allows EC2 instances to register themselves in an ECS Cluster
+  IAMPolicyEC2ContainerInstance:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: ECSFullAccess
+      PolicyDocument:
+        Statement:
+        - Action:
+          - "ecs:CreateCluster"
+          - "ecs:DeregisterContainerInstance"
+          - "ecs:DiscoverPollEndpoint"
+          - "ecs:Poll"
+          - "ecs:RegisterContainerInstance"
+          - "ecs:StartTelemetrySession"
+          - "ecs:Submit*"
+          - "ecr:GetAuthorizationToken"
+          - "ecr:BatchCheckLayerAvailability"
+          - "ecr:GetDownloadUrlForLayer"
+          - "ecr:BatchGetImage"
+          - "logs:CreateLogStream"
+          - "logs:PutLogEvents"
+          Effect: Allow
+          Resource: "*"
+      Roles:
+      - !Ref IAMRoleEC2ContainerInstance
+
+  # This profile allows EC2 instances to register themselves in an ECS Cluster
+  IAMInstanceProfileEC2ContainerInstance:
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref IAMRoleEC2ContainerInstance

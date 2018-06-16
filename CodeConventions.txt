@@ -1,6 +1,6 @@
 YAML files are named as the overall solution they create
 
-Stacks are named as the YAML file suffixed by "Docker"
+Stacks are named as the YAML file suffixed by "Stack"
 
 The docker repository is named repository-docker
 
