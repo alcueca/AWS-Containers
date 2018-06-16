@@ -3,7 +3,7 @@
 PATH=$PATH:/home/alberto/AWS/Git/AWS-Tooling/
 
 aws cloudformation delete-stack \
-    --stack-name ECSClusterDocker
+    --stack-name ECSClusterStack
 
-waitForDeletion.py -s ECSClusterDocker
+waitForDeletion.py -s ECSClusterStack
 beep
