@@ -10,9 +10,9 @@ ECSCluster.yaml: Creates an ECS Cluster called ecs-cluster
 
 EC2ContainerInstance.yaml: It creates an EC2 Container Instance that logs on to the ECR Repository and launches into the ECS Cluster. Depends on NetworkAndSecurity.yaml, ECR.yaml and ECSCluster.yaml
 
-ECSClusterAutoScaling.yaml: Todo: Create an autoscaling ECS Cluster
+ECSClusterAutoScaling.yaml: Creates an autoscaling ECS Cluster
 
-AutoScalingAlarms.yaml: ToDo: Create the triggers for scaling the autoscaling ECS Cluster
+AutoScalingAlarms.yaml: ToDo: Create the triggers for scaling up and down the autoscaling ECS Cluster
 
 
 
