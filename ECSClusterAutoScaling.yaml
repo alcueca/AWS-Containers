@@ -133,7 +133,7 @@ Resources:
       HealthCheckType: ELB
       LaunchConfigurationName: !Ref AutoScalingLaunchConfiguration
       MaxSize: 4
-      MinSize: 1
+      MinSize: 2
       Tags:
         - Key: Name
           Value: EC2ContainerInstance-AutoScaling

@@ -7,7 +7,7 @@ aws ecr delete-repository \
     --force
 
 aws cloudformation delete-stack \
-    --stack-name ECRDocker
+    --stack-name ECRStack
 
 waitForDeletion.py -s ECRStack
 beep
