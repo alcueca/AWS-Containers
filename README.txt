@@ -1,6 +1,6 @@
 This repository implements the lessons from https://www.udemy.com/aws-masterclass-docker-containers-in-the-cloud-with-aws-ecs
 
-NetworkAndSecurity.yaml: Launches VPC, Subnets, Security Groups and IAM entities. Most other stacks depend on this one.
+ContainersBase.yaml: Launches VPC, Subnets, Security Groups and IAM entities. Most other stacks depend on this one.
 
 ECR.yaml: Creates an ECR repository called ecr-repository
 
